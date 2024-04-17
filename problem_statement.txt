@@ -1,0 +1,52 @@
+Problem Statement
+    Build a job runner which can queue, run and return status of job.
+    Each job is a set of parallel tasks with subtasks to be run in serial.
+    Input will be a list of lists (countries → states)
+    Each country task needs to run in parallel
+    Each state subtask needs to run in serial
+    If any state subtask fails, then it should be retried 3 times. After that the country task should be paused.
+    If any state subtask fails, then other subtasks of other countries should not be impacted.
+    Each job should have an idempotency key.
+If we queue the job with the same idempotency key
+    SUCCESS → we should not run it again
+    RUNNING → we should continue running it.
+    FAILURE → we should re-run incomplete sub-tasks should be run.
+APIs needed
+    Start job with payload and idempotency key
+        Return run_id immediately
+    Get status of job by run_id
+    Follow-up tasks
+
+
+BrainStorming:
+
+    json = {data:[{country:"country_name, states:["state1"]}, ]}
+
+
+    sqlite --> id, idempotency key, country_task1, state, status
+            id, idempotency key, country_task2, state, status
+            id, idempotency key, country_task1, , state, status
+
+
+
+    main.py --> data = json.load(file)
+    for subdata in data:
+        return main_task({country:"country_name, states:["state1"]}) --> process1
+
+    Once the process starts:
+        for state:
+            country, state
+            1) check the sqlite table
+                i. If subtask exists:
+                    if success:
+                        pass
+                    if running:
+                        break
+                    if failed:
+                        restart the state level sub task
+                ii. if subtask does not exist:
+                    enter in the sqlite table (idempotencykey, country, state, status = "running")
+                    start the task
+
+
+        return
