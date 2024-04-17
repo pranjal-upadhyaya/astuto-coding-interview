@@ -17,6 +17,7 @@ class Task:
         if retries > 0:
             # The code to run subtask exists here. If the code block runs succesfully, set succesfull_run = True
             try:
+                time.sleep(5)
                 print("state")
                 successfull_run = True
             except Exception as e:
@@ -29,7 +30,6 @@ class Task:
     def run_task(self):
         for state in self.state_list:
             print(state)
-            time.sleep(5)
             con = sqlite3.connect("task.db")
             cur = con.cursor()
             query = "select * from task where country = ? and state = ?"
